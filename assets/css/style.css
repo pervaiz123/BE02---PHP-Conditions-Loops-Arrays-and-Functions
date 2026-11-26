@@ -1,0 +1,512 @@
+/* Reset default browser spacing and box sizing. */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Main page styling. */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f2f5fa;
+  color: #263247;
+  line-height: 1.6;
+}
+
+.page-container {
+  width: 94%;
+  max-width: 1450px;
+  margin: 30px auto;
+}
+
+/* School header. */
+.school-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: #142d4e;
+  color: #ffffff;
+  padding: 28px;
+  border-radius: 12px;
+}
+
+.school-logo {
+  width: 65px;
+  height: 65px;
+  min-width: 65px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #142d4e;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.school-information h1 {
+  font-size: 25px;
+  margin: 4px 0;
+}
+
+.school-information p {
+  color: #d6e3f5;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+}
+
+/* Page introduction. */
+.page-introduction {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin: 35px 0 22px;
+}
+
+.page-introduction h2 {
+  font-size: 26px;
+  color: #142d4e;
+  margin: 5px 0;
+}
+
+.page-introduction p {
+  color: #6b7689;
+}
+
+.report-label {
+  background: #e2ebf8;
+  color: #193e6b;
+  padding: 10px 16px;
+  border-radius: 7px;
+  font-weight: bold;
+}
+
+/* Summary cards. */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.summary-card {
+  background: #ffffff;
+  padding: 22px;
+  border-radius: 10px;
+  border: 1px solid #e7ebf1;
+}
+
+.summary-card p {
+  color: #68758a;
+  font-size: 14px;
+}
+
+.summary-card h3 {
+  font-size: 30px;
+  margin: 8px 0;
+  color: #142d4e;
+}
+
+.summary-card span {
+  font-size: 12px;
+  color: #7f8999;
+}
+
+.pass-card h3 {
+  color: #16834d;
+}
+
+.fail-card h3 {
+  color: #c33d43;
+}
+
+.average-card h3 {
+  color: #225eac;
+}
+
+/* Highlight cards. */
+.highlight-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.highlight-card {
+  background: #ffffff;
+  border: 1px solid #e7ebf1;
+  border-radius: 10px;
+  padding: 25px;
+}
+
+.top-student-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-left: 5px solid #d6a63c;
+}
+
+.highlight-icon {
+  font-size: 38px;
+  color: #d6a63c;
+}
+
+.highlight-card h2 {
+  color: #142d4e;
+  margin: 5px 0;
+}
+
+.highlight-card p {
+  color: #718096;
+}
+
+.highlight-card strong {
+  display: inline-block;
+  margin-top: 8px;
+  color: #16834d;
+}
+
+.latest-card span {
+  display: inline-block;
+  margin-top: 8px;
+  color: #16834d;
+  font-weight: bold;
+}
+
+/* Results table section. */
+.results-section {
+  margin-top: 30px;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 10px;
+  border: 1px solid #e7ebf1;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.section-heading h2 {
+  font-size: 21px;
+  color: #142d4e;
+}
+
+.section-heading p {
+  color: #7b8697;
+  font-size: 13px;
+}
+
+.filter-form {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.filter-form label {
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.filter-form select,
+.filter-form button {
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.filter-form select {
+  border: 1px solid #ccd5e2;
+  background: #ffffff;
+}
+
+.filter-form button {
+  border: none;
+  background: #1d4f85;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.filter-form button:hover {
+  background: #153b66;
+}
+
+.record-count {
+  margin: 20px 0 12px;
+  color: #768295;
+  font-size: 13px;
+}
+
+/* Horizontal scrolling keeps wide result tables usable on phones. */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 1050px;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+thead {
+  background: #edf2f9;
+}
+
+th,
+td {
+  padding: 13px 12px;
+  border-bottom: 1px solid #edf0f5;
+  font-size: 13px;
+}
+
+th {
+  color: #28486f;
+  white-space: nowrap;
+}
+
+tbody tr:hover {
+  background: #f8faff;
+}
+
+.student-name {
+  font-weight: bold;
+  color: #233e60;
+}
+
+.obtained-marks {
+  font-weight: bold;
+}
+
+.grade-badge {
+  display: inline-block;
+  padding: 5px 11px;
+  border-radius: 5px;
+  background: #eaf0fa;
+  color: #1c4c86;
+  font-weight: bold;
+}
+
+.status-pass,
+.status-fail {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.status-pass {
+  color: #137746;
+  background: #e3f5eb;
+}
+
+.status-fail {
+  color: #b52c35;
+  background: #ffebed;
+}
+
+.empty-message {
+  padding: 30px;
+  text-align: center;
+  color: #768295;
+}
+
+/* Passed and failed student lists. */
+.student-groups {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 22px;
+}
+
+.group-card {
+  background: #ffffff;
+  padding: 23px;
+  border-radius: 10px;
+  border: 1px solid #e7ebf1;
+}
+
+.group-card h2 {
+  font-size: 19px;
+  color: #176c42;
+}
+
+.failed-group h2 {
+  color: #b52c35;
+}
+
+.group-description {
+  margin: 6px 0 16px;
+  color: #788497;
+  font-size: 13px;
+}
+
+.group-card ul {
+  list-style: none;
+}
+
+.group-card li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 0;
+  border-bottom: 1px solid #edf0f5;
+  font-size: 13px;
+}
+
+.group-card li:last-child {
+  border-bottom: none;
+}
+
+.group-card li strong {
+  color: #176c42;
+}
+
+.failed-group li strong {
+  color: #b52c35;
+}
+
+.group-card small {
+  display: block;
+  color: #8993a3;
+  font-size: 11px;
+}
+
+/* Academic grading policy. */
+.grading-section {
+  margin-top: 22px;
+  padding: 23px;
+  background: #eaf0f8;
+  border-radius: 10px;
+}
+
+.grading-section h2 {
+  font-size: 19px;
+  color: #142d4e;
+  margin-bottom: 14px;
+}
+
+.grading-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.grading-grid span {
+  background: #ffffff;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #345578;
+}
+
+.grading-section > p {
+  margin-top: 14px;
+  color: #63748a;
+  font-size: 12px;
+}
+
+/* Footer. */
+footer {
+  text-align: center;
+  padding: 25px 10px;
+  margin-top: 20px;
+}
+
+footer p {
+  font-weight: bold;
+  color: #29486d;
+}
+
+footer span {
+  font-size: 12px;
+  color: #8590a0;
+}
+
+/* Mobile responsive layout. */
+@media (max-width: 900px) {
+  .summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 600px) {
+  .page-container {
+    width: 96%;
+    margin: 15px auto;
+  }
+
+  .school-header {
+    padding: 18px;
+    align-items: flex-start;
+  }
+
+  .school-information h1 {
+    font-size: 18px;
+  }
+
+  .school-logo {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    font-size: 16px;
+  }
+
+  .page-introduction {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .page-introduction h2 {
+    font-size: 21px;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+  }
+
+  .summary-card {
+    padding: 15px;
+  }
+
+  .summary-card h3 {
+    font-size: 23px;
+  }
+
+  .highlight-grid,
+  .student-groups {
+    grid-template-columns: 1fr;
+  }
+
+  .results-section {
+    padding: 15px;
+  }
+
+  .filter-form {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .filter-form select {
+    flex: 1;
+  }
+
+  .grading-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
