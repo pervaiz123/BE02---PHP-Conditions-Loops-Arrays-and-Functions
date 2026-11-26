@@ -2,14 +2,6 @@
 
 declare(strict_types=1);
 
-// School information.
-const SCHOOL_NAME = 'Shaheed Rajib Anmol Free Education System';
-const SCHOOL_TAGLINE = 'Quality Education, Brighter Future';
-
-// Academic rules.
-const SUBJECT_MAX_MARKS = 100;
-const MINIMUM_PASS_MARKS = 40;
-
 // First section: five students.
 $sectionAStudents = [
 
@@ -137,7 +129,7 @@ $studentRecords = array_merge(
 );
 
 
-// Add a newly enrolled tenth student.
+// Add the tenth student to the collection.
 $newStudent = [
     'name' => 'Daniyal Shah',
     'roll_number' => 'SRA-010',
@@ -153,9 +145,8 @@ $newStudent = [
 array_push($studentRecords, $newStudent);
 
 
-// Create a copy to retrieve the latest enrollment.
-// array_pop() removes the last record from the copy,
-// leaving the original student collection unchanged.
+// Work on a copy so array_pop() does not remove
+// a student from the original collection.
 $studentPreview = $studentRecords;
 
 $latestEnrolledStudent = array_pop($studentPreview);

@@ -2,23 +2,28 @@
 
 declare(strict_types=1);
 
+// Load application settings, student records, and reusable functions.
+require_once __DIR__ . '/includes/config.php';
 
-// Load school information and student records.
 require_once __DIR__ . '/includes/students.php';
 
-// Load reusable calculation and grading functions.
 require_once __DIR__ . '/includes/functions.php';
 
 
-// Calculate and prepare the result of every student.
-// The anonymous callback runs prepareStudentResult() for each record.
+// Protect the dashboard if the student collection is empty or unavailable.
+$studentRecords = isset($studentRecords) && is_array($studentRecords)
+    ? $studentRecords
+    : [];
+
+
+// Calculate all student results using a reusable function.
 $students = array_map(
     static fn(array $student): array => prepareStudentResult($student),
     $studentRecords
 );
 
 
-// Filter students who passed using array_filter().
+// Separate passed students.
 $passedStudents = array_values(
     array_filter(
         $students,
@@ -27,25 +32,38 @@ $passedStudents = array_values(
 );
 
 
-// Filter students who failed.
+// Separate failed students.
 $failedStudents = array_values(
     array_filter(
         $students,
-        static function (array $student): bool {
-            return !$student['is_passed'];
-        }
+        static fn(array $student): bool => !$student['is_passed']
     )
 );
 
 
-// Extract all student percentages using array_map().
+// Collect subject names from every student.
+// This prevents undefined-key warnings when students have different subjects.
+$subjectNames = [];
+
+foreach ($students as $student) {
+
+    foreach (array_keys($student['subject_marks']) as $subjectName) {
+
+        if (!in_array($subjectName, $subjectNames, true)) {
+            $subjectNames[] = $subjectName;
+        }
+    }
+}
+
+
+// Extract each student's percentage.
 $percentages = array_map(
     static fn(array $student): float => $student['percentage'],
     $students
 );
 
 
-// Calculate the average percentage using a while loop.
+// Calculate the class average using a while loop.
 $percentageTotal = 0.0;
 
 $index = 0;
@@ -58,64 +76,59 @@ while ($index < count($percentages)) {
 }
 
 
-// Calculate average safely.
+// Calculate the average safely.
 $averagePercentage = count($percentages) > 0
     ? $percentageTotal / count($percentages)
     : 0.0;
 
 
-// Identify the highest-scoring student using a for loop.
+// Find the highest-performing student using a for loop.
+// Percentage is used for fair comparison when subject counts differ.
 $topStudent = null;
 
 for ($index = 0; $index < count($students); $index++) {
 
     $currentStudent = $students[$index];
 
-    // Skip a record if its roll number is missing.
-    if (trim($currentStudent['roll_number']) === '') {
-        continue;
-    }
-
-    // Compare obtained marks with the current highest scorer.
     if (
         $topStudent === null ||
-        $currentStudent['obtained_marks'] > $topStudent['obtained_marks']
+        $currentStudent['percentage'] > $topStudent['percentage']
     ) {
         $topStudent = $currentStudent;
     }
 
-    // A perfect score cannot be beaten, so stop searching.
+    // A score of 100% cannot be exceeded.
     if ($currentStudent['percentage'] >= 100.0) {
         break;
     }
 }
 
 
-// Prepare the latest enrollment result.
-$latestEnrollment = prepareStudentResult(
-    $latestEnrolledStudent
-);
+// array_pop() returns null when the student collection is empty.
+// Check the value before preparing its result.
+$latestEnrollment = is_array($latestEnrolledStudent ?? null)
+    ? prepareStudentResult($latestEnrolledStudent)
+    : null;
 
 
-// Read the selected student filter.
-// Null coalescing provides "all" when no filter is supplied.
+// Receive the selected result filter through GET.
 $requestedView = $_GET['view'] ?? 'all';
 
-// Only accept a string as a filter value.
 $selectedView = is_string($requestedView)
     ? $requestedView
     : 'all';
 
-// Define the permitted filter options.
+
+// Define permitted filter values.
 $allowedViews = ['all', 'passed', 'failed'];
 
-// Validate the selected filter.
+// Reject invalid filter values.
 if (!in_array($selectedView, $allowedViews, true)) {
     $selectedView = 'all';
 }
 
 
-// Select which students should appear in the main table.
+// Select which students should appear in the table.
 switch ($selectedView) {
 
     case 'passed':
@@ -138,13 +151,7 @@ switch ($selectedView) {
 }
 
 
-// Get the names of all subjects from the first student.
-$subjectNames = array_keys(
-    $students[0]['subject_marks'] ?? []
-);
-
-
-// Calculate summary information.
+// Prepare dashboard summary values.
 $totalStudents = count($students);
 
 $totalPassed = count($passedStudents);
@@ -152,6 +159,27 @@ $totalPassed = count($passedStudents);
 $totalFailed = count($failedStudents);
 
 $displayedStudents = count($displayStudents);
+
+
+// Configure passed and failed student cards.
+// Both cards use the same HTML template below.
+$studentGroups = [
+
+    [
+        'title' => 'Passed Students',
+        'description' => 'Students who met all passing requirements.',
+        'students' => $passedStudents,
+        'class' => ''
+    ],
+
+    [
+        'title' => 'Failed Students',
+        'description' => 'Students who require additional academic support.',
+        'students' => $failedStudents,
+        'class' => 'failed-group'
+    ]
+
+];
 
 ?>
 
@@ -294,6 +322,11 @@ $displayedStudents = count($displayStudents);
                                 Marks
                             </strong>
 
+                            <p>
+                                Percentage:
+                                <?= e(number_format($topStudent['percentage'], 2)) ?>%
+                            </p>
+
                         <?php else: ?>
 
                             <p>No student records available.</p>
@@ -310,23 +343,31 @@ $displayedStudents = count($displayStudents);
 
                     <p class="eyebrow">LATEST ENROLLMENT</p>
 
-                    <h2><?= e($latestEnrollment['name']) ?></h2>
+                    <?php if ($latestEnrollment !== null): ?>
 
-                    <p>
-                        Roll Number:
-                        <?= e($latestEnrollment['roll_number']) ?>
-                    </p>
+                        <h2><?= e($latestEnrollment['name']) ?></h2>
 
-                    <span>
-                        <?= e($latestEnrollment['status']) ?>
-                    </span>
+                        <p>
+                            Roll Number:
+                            <?= e($latestEnrollment['roll_number']) ?>
+                        </p>
+
+                        <span>
+                            <?= e($latestEnrollment['status']) ?>
+                        </span>
+
+                    <?php else: ?>
+
+                        <p>No enrollment records available.</p>
+
+                    <?php endif; ?>
 
                 </div>
 
             </section>
 
 
-            <!-- Student records and filter controls -->
+            <!-- Student results and filters -->
             <section class="results-section">
 
                 <div class="section-heading">
@@ -342,7 +383,7 @@ $displayedStudents = count($displayStudents);
                     </div>
 
 
-                    <!-- Filter records through a GET request -->
+                    <!-- Filter student records using GET -->
                     <form method="GET" action="" class="filter-form">
 
                         <label for="view">Filter Students</label>
@@ -363,7 +404,9 @@ $displayedStudents = count($displayStudents);
 
                         </select>
 
-                        <button type="submit">Apply Filter</button>
+                        <button type="submit">
+                            Apply Filter
+                        </button>
 
                     </form>
 
@@ -371,8 +414,10 @@ $displayedStudents = count($displayStudents);
 
 
                 <p class="record-count">
+
                     Showing <?= e($displayedStudents) ?>
                     of <?= e($totalStudents) ?> students
+
                 </p>
 
 
@@ -423,38 +468,30 @@ $displayedStudents = count($displayStudents);
 
 
                                         <td>
+
                                             <?= e($student['roll_number']) ?>
+
                                         </td>
 
 
-                                        <!-- Display every subject mark.
-                                             do-while executes at least once when subjects exist. -->
+                                        <!-- Display all subject columns.
+                                         A missing subject is displayed as a dash. -->
 
-                                        <?php
+                                        <?php foreach ($subjectNames as $subjectName): ?>
 
-                                        $subjectIndex = 0;
+                                            <?php
 
-                                        if ($subjectNames !== []) {
+                                            $subjectMark = $student['subject_marks'][$subjectName] ?? null;
 
-                                            do {
+                                            ?>
 
-                                                $subjectName = $subjectNames[$subjectIndex];
+                                            <td>
 
-                                                ?>
+                                                <?= $subjectMark === null ? '—' : e($subjectMark) ?>
 
-                                                <td>
-                                                    <?= e($student['subject_marks'][$subjectName]) ?>
-                                                </td>
+                                            </td>
 
-                                                <?php
-
-                                                $subjectIndex++;
-
-                                            } while ($subjectIndex < count($subjectNames));
-
-                                        }
-
-                                        ?>
+                                        <?php endforeach; ?>
 
 
                                         <td class="obtained-marks">
@@ -469,14 +506,18 @@ $displayedStudents = count($displayStudents);
 
 
                                         <td>
+
                                             <?= e(number_format($student['percentage'], 2)) ?>%
+
                                         </td>
 
 
                                         <td>
 
                                             <span class="grade-badge">
+
                                                 <?= e($student['grade']) ?>
+
                                             </span>
 
                                         </td>
@@ -500,7 +541,7 @@ $displayedStudents = count($displayStudents);
 
                                 <tr>
 
-                                    <td colspan="<?= e(count($subjectNames) + 7) ?>" class="empty-message">
+                                    <td colspan="<?= e(count($subjectNames) + 6) ?>" class="empty-message">
 
                                         No students found for this filter.
 
@@ -519,76 +560,67 @@ $displayedStudents = count($displayStudents);
             </section>
 
 
-            <!-- Pass and fail student lists -->
+            <!-- Reusable passed and failed student lists -->
             <section class="student-groups">
 
-                <div class="group-card">
+                <?php foreach ($studentGroups as $group): ?>
 
-                    <h2>Passed Students</h2>
+                    <div class="group-card <?= e($group['class']) ?>">
 
-                    <p class="group-description">
-                        Students who achieved the minimum passing marks in every subject.
-                    </p>
+                        <h2><?= e($group['title']) ?></h2>
 
-                    <ul>
+                        <p class="group-description">
 
-                        <?php foreach ($passedStudents as $student): ?>
+                            <?= e($group['description']) ?>
 
-                            <li>
+                        </p>
 
-                                <span>
-                                    <?= e($student['name']) ?>
-                                    <small><?= e($student['roll_number']) ?></small>
-                                </span>
+                        <ul>
 
-                                <strong>
-                                    <?= e(number_format($student['percentage'], 2)) ?>%
-                                </strong>
+                            <?php if ($group['students'] === []): ?>
 
-                            </li>
+                                <li>No students in this group.</li>
 
-                        <?php endforeach; ?>
+                            <?php else: ?>
 
-                    </ul>
+                                <?php foreach ($group['students'] as $student): ?>
 
-                </div>
+                                    <li>
 
+                                        <span>
 
-                <div class="group-card failed-group">
+                                            <?= e($student['name']) ?>
 
-                    <h2>Failed Students</h2>
+                                            <small>
 
-                    <p class="group-description">
-                        Students who need additional academic support.
-                    </p>
+                                                <?= e($student['roll_number']) ?>
 
-                    <ul>
+                                            </small>
 
-                        <?php foreach ($failedStudents as $student): ?>
+                                        </span>
 
-                            <li>
+                                        <strong>
 
-                                <span>
-                                    <?= e($student['name']) ?>
-                                    <small><?= e($student['roll_number']) ?></small>
-                                </span>
+                                            <?= e(number_format($student['percentage'], 2)) ?>%
 
-                                <strong>
-                                    <?= e(number_format($student['percentage'], 2)) ?>%
-                                </strong>
+                                        </strong>
 
-                            </li>
+                                    </li>
 
-                        <?php endforeach; ?>
+                                <?php endforeach; ?>
 
-                    </ul>
+                            <?php endif; ?>
 
-                </div>
+                        </ul>
+
+                    </div>
+
+                <?php endforeach; ?>
 
             </section>
 
 
-            <!-- Academic grading rules -->
+            <!-- Academic grading policy -->
             <section class="grading-section">
 
                 <h2>Academic Grading Policy</h2>
@@ -610,8 +642,11 @@ $displayedStudents = count($displayStudents);
                 </div>
 
                 <p>
+
                     Students must obtain at least 40 marks in every subject
-                    to pass. Failure in any individual subject results in an F grade.
+                    and 50% overall to pass. Failure in either requirement
+                    results in an F grade.
+
                 </p>
 
             </section>
